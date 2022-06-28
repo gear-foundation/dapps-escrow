@@ -3,6 +3,7 @@
 use gstd::{prelude::*, ActorId};
 use primitive_types::U256;
 
+/// An escrow wallet ID.
 pub type WalletId = U256;
 
 /// Initializes an escrow program.
@@ -12,6 +13,9 @@ pub struct InitEscrow {
     pub ft_program_id: ActorId,
 }
 
+/// An enum to send the program info about what it should do.
+///
+/// After a successful processing of this enum, the program replies with [`EscrowEvent`].
 #[derive(Decode, Encode, TypeInfo)]
 pub enum EscrowAction {
     /// Creates one escrow wallet and replies with its ID.
@@ -41,7 +45,7 @@ pub enum EscrowAction {
     ///
     /// On success, returns [`EscrowEvent::Deposited`].
     Deposit(
-        /// An escrow wallet ID.
+        /// A wallet ID.
         WalletId,
     ),
 
@@ -56,7 +60,7 @@ pub enum EscrowAction {
     ///
     /// On success, returns [`EscrowEvent::Confirmed`].
     Confirm(
-        /// An escrow wallet ID.
+        /// A wallet ID.
         WalletId,
     ),
 
@@ -72,7 +76,7 @@ pub enum EscrowAction {
     ///
     /// On success, returns [`EscrowEvent::Refunded`].
     Refund(
-        /// An escrow wallet ID.
+        /// A wallet ID.
         WalletId,
     ),
 
@@ -84,48 +88,60 @@ pub enum EscrowAction {
     ///
     /// On success, returns [`EscrowEvent::Cancelled`].
     Cancel(
-        /// An escrow wallet ID.
+        /// A wallet ID.
         WalletId,
     ),
 }
 
+/// An enum that contains a result of processed [`EscrowAction`].
 #[derive(Decode, Encode, TypeInfo)]
 pub enum EscrowEvent {
     Cancelled(
-        /// An ID of an escrow wallet with a cancelled deal.
+        /// An ID of a wallet with a cancelled deal.
         WalletId,
     ),
     Refunded(
-        /// An ID of a refunded escrow wallet.
+        /// An ID of a refunded wallet.
         WalletId,
     ),
     Confirmed(
-        /// An ID of an escrow wallet with confirmed deal.
+        /// An ID of a wallet with a confirmed deal.
         WalletId,
     ),
     Deposited(
-        /// An ID of a deposited escrow wallet.
+        /// An ID of a deposited wallet.
         WalletId,
     ),
     Created(
-        /// An ID of a created ecsrow wallet.
+        /// An ID of a created wallet.
         WalletId,
     ),
 }
 
+/// An enum for requesting the program state.
+///
+/// After a successful processing of this enum, the program replies with [`EscrowStateReply`].
 #[derive(Decode, Encode, TypeInfo)]
 pub enum EscrowState {
     /// Gets wallet info.
     ///
     /// On success, returns [`EscrowStateReply::Info`].
-    Info(WalletId),
+    Info(
+        /// A wallet ID.
+        WalletId,
+    ),
 }
 
+/// An enum that contains a reply for a requested [`EscrowState`].
 #[derive(Decode, Encode, TypeInfo, Debug, PartialEq, Eq)]
 pub enum EscrowStateReply {
-    Info(Wallet),
+    Info(
+        /// Wallet info.
+        Wallet,
+    ),
 }
 
+/// Escrow wallet information.
 #[derive(Decode, Encode, TypeInfo, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Wallet {
     /// A buyer.
@@ -134,10 +150,11 @@ pub struct Wallet {
     pub seller: ActorId,
     /// A wallet state.
     pub state: WalletState,
-    /// An amount of tokens that this wallet can have. **Not** a current amount on a wallet balance!
+    /// An amount of tokens that a wallet can have. **Not** a current amount on a wallet balance!
     pub amount: u128,
 }
 
+/// An escrow wallet state.
 #[derive(Decode, Encode, TypeInfo, PartialEq, Eq, Clone, Copy, Debug)]
 pub enum WalletState {
     AwaitingDeposit,
