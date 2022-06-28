@@ -37,7 +37,7 @@ pub enum EscrowAction {
     ///
     /// # Requirements
     /// * [`msg::source()`](gstd::msg::source) must be a buyer for this wallet.
-    /// * Wallet must'nt be paid or closed (that is, wallet's [`WalletState`] must be [`AwaitingDeposit`](WalletState::AwaitingDeposit)).
+    /// * Wallet mustn't be paid or closed (that is, wallet's [`WalletState`] must be [`AwaitingDeposit`](WalletState::AwaitingDeposit)).
     ///
     /// On success, returns [`EscrowEvent::Deposited`].
     Deposit(

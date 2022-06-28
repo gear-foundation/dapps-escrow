@@ -132,10 +132,10 @@ fn interact_with_non_existend_wallet() {
     let system = init_system();
     let escrow_program = init_escrow(&system);
 
-    fail::deposit(&escrow_program, NONEXISTEND_WALLET, BUYER[0]);
-    fail::cancel(&escrow_program, NONEXISTEND_WALLET, BUYER[0]);
-    fail::refund(&escrow_program, NONEXISTEND_WALLET, BUYER[0]);
-    fail::confirm(&escrow_program, NONEXISTEND_WALLET, BUYER[0]);
+    fail::deposit(&escrow_program, NONEXISTENT_WALLET, BUYER[0]);
+    fail::cancel(&escrow_program, NONEXISTENT_WALLET, BUYER[0]);
+    fail::refund(&escrow_program, NONEXISTENT_WALLET, BUYER[0]);
+    fail::confirm(&escrow_program, NONEXISTENT_WALLET, BUYER[0]);
 }
 
 #[test]
@@ -144,5 +144,5 @@ fn interact_with_non_existend_wallet_meta_state() {
     let system = init_system();
     let escrow_program = init_escrow(&system);
 
-    fail::info(&escrow_program, NONEXISTEND_WALLET);
+    fail::info(&escrow_program, NONEXISTENT_WALLET);
 }

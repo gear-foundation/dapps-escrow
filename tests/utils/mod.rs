@@ -13,7 +13,7 @@ pub const SELLER: [u64; 2] = [56, 78];
 pub const AMOUNT: [u128; 2] = [12345, 54321];
 pub const WALLET: [u128; 2] = [0, 1];
 pub const AMOUNT_REMAINDER: u128 = 20000;
-pub const NONEXISTEND_WALLET: u128 = 999999;
+pub const NONEXISTENT_WALLET: u128 = 999999;
 
 pub fn init_system() -> System {
     let system = System::new();
