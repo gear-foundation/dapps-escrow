@@ -130,6 +130,10 @@ pub enum EscrowState {
         /// A wallet ID.
         WalletId,
     ),
+    /// Gets all created wallets.
+    ///
+    /// On success, returns [`EscrowStateReply::CreatedWallets`].
+    CreatedWallets
 }
 
 /// An enum that contains a reply for a requested [`EscrowState`].
@@ -139,6 +143,9 @@ pub enum EscrowStateReply {
         /// Wallet info.
         Wallet,
     ),
+    CreatedWallets(
+        /// All created wallets in the ID-info format.
+        Vec<(WalletId, Wallet)>),
 }
 
 /// Escrow wallet information.
