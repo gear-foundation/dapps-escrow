@@ -173,22 +173,25 @@ fn created_wallets() {
 
     check::created_wallets(
         &escrow_program,
-        vec![(
-            WALLET[0].into(),
-            Wallet {
-                amount: AMOUNT[0],
-                buyer: BUYER[0].into(),
-                seller: SELLER[0].into(),
-                state: WalletState::AwaitingDeposit,
-            },
-        ), (
-            WALLET[1].into(),
-            Wallet {
-                amount: AMOUNT[1],
-                buyer: BUYER[1].into(),
-                seller: SELLER[1].into(),
-                state: WalletState::AwaitingDeposit,
-            },
-        )],
+        vec![
+            (
+                WALLET[0].into(),
+                Wallet {
+                    amount: AMOUNT[0],
+                    buyer: BUYER[0].into(),
+                    seller: SELLER[0].into(),
+                    state: WalletState::AwaitingDeposit,
+                },
+            ),
+            (
+                WALLET[1].into(),
+                Wallet {
+                    amount: AMOUNT[1],
+                    buyer: BUYER[1].into(),
+                    seller: SELLER[1].into(),
+                    state: WalletState::AwaitingDeposit,
+                },
+            ),
+        ],
     );
 }

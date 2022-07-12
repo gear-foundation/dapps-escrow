@@ -52,5 +52,8 @@ pub fn info(escrow_program: &Program, wallet_id: u128, wallet_info: Wallet) {
 }
 
 pub fn created_wallets(escrow_program: &Program, created_wallets: Vec<(WalletId, Wallet)>) {
-    assert_eq!(escrow_program.meta_state::<_, EscrowStateReply>(EscrowState::CreatedWallets), EscrowStateReply::CreatedWallets(created_wallets));
+    assert_eq!(
+        escrow_program.meta_state::<_, EscrowStateReply>(EscrowState::CreatedWallets),
+        EscrowStateReply::CreatedWallets(created_wallets)
+    );
 }
