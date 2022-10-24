@@ -129,6 +129,8 @@ impl Escrow {
 
         wallet.state = WalletState::AwaitingConfirmation;
 
+        self.transactions.remove(&current_transaction_id);
+
         reply(EscrowEvent::Deposited(current_transaction_id, wallet_id));
     }
 
@@ -150,6 +152,9 @@ impl Escrow {
         .is_ok()
         {
             wallet.state = WalletState::Closed;
+
+            self.transactions.remove(&current_transaction_id);
+
             reply(EscrowEvent::Confirmed(current_transaction_id, wallet_id));
         }
     }
@@ -172,6 +177,9 @@ impl Escrow {
         .is_ok()
         {
             wallet.state = WalletState::AwaitingDeposit;
+
+            self.transactions.remove(&current_transaction_id);
+
             reply(EscrowEvent::Refunded(current_transaction_id, wallet_id));
         }
     }
