@@ -13,12 +13,11 @@ pub fn create(escrow_program: &Program, from: u64, buyer: u64, seller: u64, amou
         .main_failed());
 }
 
-pub fn deposit(escrow_program: &Program, wallet_id: u128, from: u64, empty_reply: bool) {
-    if empty_reply {
+pub fn deposit(escrow_program: &Program, wallet_id: u128, from: u64, transaction_failed: bool) {
+    if transaction_failed {
         assert!(escrow_program
             .send(from, EscrowAction::Deposit(wallet_id.into()))
-            .log()
-            .is_empty());
+            .contains(&(from, EscrowEvent::TransactionFailed.encode())));
     } else {
         assert!(escrow_program
             .send(from, EscrowAction::Deposit(wallet_id.into()))

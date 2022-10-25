@@ -1,6 +1,6 @@
 pub use escrow_io::*;
 use gstd::prelude::*;
-use gtest::{Program, System};
+pub use gtest::{Program, System};
 pub use token::*;
 
 pub mod check;

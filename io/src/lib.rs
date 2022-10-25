@@ -95,14 +95,14 @@ pub enum EscrowAction {
     /// Continues the transaction if it fails due to lack of gas
     /// or due to an error in the token contract.
     ///
-    /// Requirements:
+    /// # Requirements:
     /// * `transaction_id` should exists in `transactions` table;
     ///
-    /// Arguments:
-    /// * `transaction_id`: Identifier of suspended transaction.
-    ///
     /// When transaction already processed replies with [`EscrowEvent::TransactionProcessed`].
-    Continue(u64),
+    Continue(
+        /// Identifier of suspended transaction.
+        u64,
+    ),
 }
 
 /// An enum that contains a result of processed [`EscrowAction`].
@@ -135,6 +135,7 @@ pub enum EscrowEvent {
         WalletId,
     ),
     TransactionProcessed,
+    TransactionFailed,
 }
 
 /// An enum for requesting the program state.

@@ -5,7 +5,7 @@ use utils::*;
 fn refund_not_paid() {
     let system = init_system();
     let escrow_program = init_escrow(&system);
-    let ft_program = gtest::Program::ftoken(WALLET[0] as u64, FT_PROGRAM_ID, &system);
+    let ft_program = Program::ftoken(WALLET[0] as u64, FT_PROGRAM_ID, &system);
 
     ft_program.mint(0, WALLET[0] as u64, BUYER[0], AMOUNT[0], false);
     check::create(
@@ -24,7 +24,7 @@ fn refund_not_paid() {
 fn not_seller_refund() {
     let system = init_system();
     let escrow_program = init_escrow(&system);
-    let ft_program = gtest::Program::ftoken(WALLET[0] as u64, FT_PROGRAM_ID, &system);
+    let ft_program = Program::ftoken(WALLET[0] as u64, FT_PROGRAM_ID, &system);
 
     ft_program.mint(0, WALLET[0] as u64, BUYER[0], AMOUNT[0], false);
     ft_program.approve(1, BUYER[0], ESCROW_PROGRAM_ID, AMOUNT[0], false);

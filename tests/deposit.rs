@@ -6,7 +6,7 @@ fn not_enougn_tokens() {
     let system = init_system();
 
     let escrow_program = init_escrow(&system);
-    gtest::Program::ftoken(WALLET[0] as u64, FT_PROGRAM_ID, &system);
+    Program::ftoken(WALLET[0] as u64, FT_PROGRAM_ID, &system);
 
     check::create(
         &escrow_program,
@@ -24,7 +24,7 @@ fn not_enougn_tokens() {
 fn double_deposit() {
     let system = init_system();
     let escrow_program = init_escrow(&system);
-    let ft_program = gtest::Program::ftoken(WALLET[0] as u64, FT_PROGRAM_ID, &system);
+    let ft_program = Program::ftoken(WALLET[0] as u64, FT_PROGRAM_ID, &system);
 
     // Purposely make it possible for the buyer to pay twice.
     ft_program.mint(0, WALLET[0] as u64, BUYER[0], AMOUNT[0] * 2, false);

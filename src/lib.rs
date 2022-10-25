@@ -124,6 +124,7 @@ impl Escrow {
         .is_err()
         {
             self.transactions.remove(&current_transaction_id);
+            reply(EscrowEvent::TransactionFailed);
             return;
         }
 
@@ -156,6 +157,8 @@ impl Escrow {
             self.transactions.remove(&current_transaction_id);
 
             reply(EscrowEvent::Confirmed(current_transaction_id, wallet_id));
+        } else {
+            reply(EscrowEvent::TransactionFailed);
         }
     }
 
@@ -181,6 +184,8 @@ impl Escrow {
             self.transactions.remove(&current_transaction_id);
 
             reply(EscrowEvent::Refunded(current_transaction_id, wallet_id));
+        } else {
+            reply(EscrowEvent::TransactionFailed);
         }
     }
 
@@ -227,7 +232,7 @@ impl Escrow {
             Some(transaction_id) => transaction_id,
             None => {
                 let transaction_id = self.transaction_id;
-                self.transaction_id = self.transaction_id.saturating_add(1);
+                self.transaction_id = self.transaction_id.wrapping_add(1);
                 transaction_id
             }
         }
