@@ -115,15 +115,16 @@ dependencies = [
 
 [[package]]
 name = "cargo_metadata"
-version = "0.15.0"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3abb7553d5b9b8421c6de7cb02606ff15e0c6eea7d8eadd75ef013fd636bec36"
+checksum = "406c859255d568f4f742b3146d51851f3bfd49f734a2c289d9107c4395ee0062"
 dependencies = [
  "camino",
  "cargo-platform",
  "semver",
  "serde",
  "serde_json",
+ "thiserror",
 ]
 
 [[package]]
@@ -254,24 +255,24 @@ dependencies = [
 
 [[package]]
 name = "ft-logic-io"
-version = "0.1.0"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token.git#816d1ed7e7bd60305f58ed877b0725b5245f018b"
+version = "0.1.1"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token.git#4cf060d2ce7d86fb1b0909adce36c5646cfffe63"
 dependencies = [
  "gstd",
  "parity-scale-codec",
- "primitive-types 0.11.1",
+ "primitive-types 0.12.0",
  "scale-info",
 ]
 
 [[package]]
 name = "ft-main-io"
-version = "0.1.0"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token.git#816d1ed7e7bd60305f58ed877b0725b5245f018b"
+version = "0.1.1"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token.git#4cf060d2ce7d86fb1b0909adce36c5646cfffe63"
 dependencies = [
  "ft-logic-io",
  "gstd",
  "parity-scale-codec",
- "primitive-types 0.11.1",
+ "primitive-types 0.12.0",
  "scale-info",
 ]
 
@@ -345,7 +346,7 @@ dependencies = [
 [[package]]
 name = "galloc"
 version = "0.1.0"
-source = "git+https://github.com/gear-tech/gear.git#dd1eb4a384327647fe61196e3aa6ceb2f7607adb"
+source = "git+https://github.com/gear-tech/gear.git#496e262eb4396a5a702eadb305093d5031769cfe"
 dependencies = [
  "dlmalloc",
 ]
@@ -353,7 +354,7 @@ dependencies = [
 [[package]]
 name = "gcore"
 version = "0.1.0"
-source = "git+https://github.com/gear-tech/gear.git#dd1eb4a384327647fe61196e3aa6ceb2f7607adb"
+source = "git+https://github.com/gear-tech/gear.git#496e262eb4396a5a702eadb305093d5031769cfe"
 dependencies = [
  "gear-core-errors",
  "parity-scale-codec",
@@ -382,9 +383,9 @@ dependencies = [
  "gear-backend-common",
  "gear-core",
  "gear-core-errors",
+ "gear-wasm-instrument",
  "log",
  "parity-scale-codec",
- "parity-wasm 0.45.0",
  "wasmi",
 ]
 
@@ -408,7 +409,7 @@ dependencies = [
 [[package]]
 name = "gear-core-errors"
 version = "0.1.0"
-source = "git+https://github.com/gear-tech/gear.git#dd1eb4a384327647fe61196e3aa6ceb2f7607adb"
+source = "git+https://github.com/gear-tech/gear.git#496e262eb4396a5a702eadb305093d5031769cfe"
 dependencies = [
  "derive_more",
  "parity-scale-codec",
@@ -458,7 +459,7 @@ dependencies = [
 [[package]]
 name = "gstd"
 version = "0.1.0"
-source = "git+https://github.com/gear-tech/gear.git#dd1eb4a384327647fe61196e3aa6ceb2f7607adb"
+source = "git+https://github.com/gear-tech/gear.git#496e262eb4396a5a702eadb305093d5031769cfe"
 dependencies = [
  "bs58",
  "futures",
@@ -476,7 +477,7 @@ dependencies = [
 [[package]]
 name = "gstd-codegen"
 version = "0.1.0"
-source = "git+https://github.com/gear-tech/gear.git#dd1eb4a384327647fe61196e3aa6ceb2f7607adb"
+source = "git+https://github.com/gear-tech/gear.git#496e262eb4396a5a702eadb305093d5031769cfe"
 dependencies = [
  "proc-macro2",
  "quote",
