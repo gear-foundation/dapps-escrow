@@ -2,10 +2,9 @@
 
 pub mod io;
 
-use ft_main_io::*;
-use gstd::{async_main, exec, msg, prelude::*, ActorId};
-
 use crate::io::*;
+use ft_main_io::*;
+use gstd::{exec, msg, prelude::*, ActorId, MessageId};
 
 /// Transfers `amount` tokens from `sender` account to `recipient` account.
 /// Arguments:
@@ -19,7 +18,9 @@ async fn transfer_tokens(
     from: &ActorId,
     to: &ActorId,
     amount_tokens: u128,
-) -> Result<(), ()> {
+) -> Result<MessageId, ()> {
+    let handle_signal_state = unsafe { HANDLE_SIGNAL_STATE.get_or_insert(Default::default()) };
+
     let reply = msg::send_for_reply_as::<_, FTokenEvent>(
         *token_address,
         FTokenAction::Message {
@@ -33,12 +34,24 @@ async fn transfer_tokens(
         },
         0,
     )
-    .expect("Error in sending a message `FTokenAction::Message`")
-    .await;
+    .expect("Error in sending a message `FTokenAction::Message`");
 
-    match reply {
-        Ok(FTokenEvent::Ok) => Ok(()),
-        _ => Err(()),
+    let transfer_message_id = reply.waiting_reply_to;
+    handle_signal_state
+        .entry(transfer_message_id)
+        .or_insert((HandleSignalState::Rerun, transaction_id));
+
+    match reply.await {
+        Ok(FTokenEvent::Ok) => Ok(transfer_message_id),
+        _ => {
+            handle_signal_state
+                .entry(transfer_message_id)
+                .and_modify(|(signal_state, _)| {
+                    *signal_state = HandleSignalState::Panic;
+                });
+
+            Err(())
+        }
     }
 }
 
@@ -74,13 +87,23 @@ fn panic_wallet_not_exist(wallet_id: WalletId) -> ! {
     panic!("Wallet with the {wallet_id} ID doesn't exist");
 }
 
+pub type TxId = u64;
+pub const SIGNAL_GAS_RESERVE: u64 = 5_000_000_000;
+
+#[derive(Debug)]
+enum HandleSignalState {
+    Normal,
+    Panic,
+    Rerun,
+}
+
 #[derive(Default)]
 struct Escrow {
     ft_program_id: ActorId,
     wallets: BTreeMap<WalletId, Wallet>,
     id_nonce: WalletId,
-    transaction_id: u64,
-    transactions: BTreeMap<u64, Option<EscrowAction>>,
+    transaction_id: TxId,
+    transactions: BTreeMap<TxId, Option<EscrowAction>>,
 }
 
 impl Escrow {
@@ -109,36 +132,39 @@ impl Escrow {
         reply(EscrowEvent::Created(wallet_id));
     }
 
-    async fn deposit(&mut self, transaction_id: Option<u64>, wallet_id: WalletId) {
+    async fn deposit(&mut self, transaction_id: Option<TxId>, wallet_id: WalletId) {
         let current_transaction_id = self.get_transaction_id(transaction_id);
+        let handle_signal_state = unsafe { HANDLE_SIGNAL_STATE.get_or_insert(Default::default()) };
 
         let wallet = get_mut_wallet(&mut self.wallets, wallet_id);
         check_buyer(wallet.buyer);
         assert_eq!(wallet.state, WalletState::AwaitingDeposit);
 
-        if transfer_tokens(
+        let Ok(transfer_message_id) = transfer_tokens(
             current_transaction_id,
             &self.ft_program_id,
             &wallet.buyer,
             &exec::program_id(),
             wallet.amount,
         )
-        .await
-        .is_err()
-        {
+        .await else {
             self.transactions.remove(&current_transaction_id);
             reply(EscrowEvent::TransactionFailed);
             return;
-        }
+        };
 
         wallet.state = WalletState::AwaitingConfirmation;
-
         self.transactions.remove(&current_transaction_id);
+        handle_signal_state
+            .entry(transfer_message_id)
+            .and_modify(|(signal_state, _)| {
+                *signal_state = HandleSignalState::Normal;
+            });
 
         reply(EscrowEvent::Deposited(current_transaction_id, wallet_id));
     }
 
-    async fn confirm(&mut self, transaction_id: Option<u64>, wallet_id: WalletId) {
+    async fn confirm(&mut self, transaction_id: Option<TxId>, wallet_id: WalletId) {
         let current_transaction_id = self.get_transaction_id(transaction_id);
 
         let wallet = get_mut_wallet(&mut self.wallets, wallet_id);
@@ -165,7 +191,7 @@ impl Escrow {
         }
     }
 
-    async fn refund(&mut self, transaction_id: Option<u64>, wallet_id: WalletId) {
+    async fn refund(&mut self, transaction_id: Option<TxId>, wallet_id: WalletId) {
         let current_transaction_id = self.get_transaction_id(transaction_id);
 
         let wallet = get_mut_wallet(&mut self.wallets, wallet_id);
@@ -206,7 +232,7 @@ impl Escrow {
     ///
     /// Execution makes sense if, when returning from an async message,
     /// the gas ran out and the state has changed.
-    async fn continue_transaction(&mut self, transaction_id: u64) {
+    async fn continue_transaction(&mut self, transaction_id: TxId) {
         let transactions = self.transactions.clone();
         let payload = &transactions
             .get(&transaction_id)
@@ -230,7 +256,7 @@ impl Escrow {
         }
     }
 
-    fn get_transaction_id(&mut self, transaction_id: Option<u64>) -> u64 {
+    fn get_transaction_id(&mut self, transaction_id: Option<TxId>) -> TxId {
         match transaction_id {
             Some(transaction_id) => transaction_id,
             None => {
@@ -243,9 +269,11 @@ impl Escrow {
 }
 
 static mut ESCROW: Option<Escrow> = None;
+static mut HANDLE_SIGNAL_STATE: Option<BTreeMap<MessageId, (HandleSignalState, TxId)>> = None;
 
 #[no_mangle]
-extern "C" fn init() {
+#[gstd::async_init(handle_signal = escrow_handle_signal)]
+async fn init() {
     let config: InitEscrow = msg::load().expect("Unable to decode InitEscrow");
 
     if config.ft_program_id == ActorId::zero() {
@@ -258,13 +286,15 @@ extern "C" fn init() {
     };
     unsafe {
         ESCROW = Some(escrow);
+        HANDLE_SIGNAL_STATE = Some(BTreeMap::new());
     }
 }
 
-#[async_main]
+#[gstd::async_main]
 async fn main() {
     let action: EscrowAction = msg::load().expect("Unable to decode EscrowAction");
     let escrow = unsafe { ESCROW.get_or_insert(Default::default()) };
+
     match action {
         EscrowAction::Create {
             buyer,
@@ -272,21 +302,30 @@ async fn main() {
             amount,
         } => escrow.create(buyer, seller, amount),
         EscrowAction::Deposit(wallet_id) => {
-            escrow
-                .transactions
-                .insert(escrow.transaction_id, Some(action));
+            let tx_id = escrow.transaction_id;
+
+            exec::system_reserve_gas(SIGNAL_GAS_RESERVE)
+                .expect("Unable to reserve gas for signal handler");
+            escrow.transactions.insert(tx_id, Some(action));
+
             escrow.deposit(None, wallet_id).await
         }
         EscrowAction::Confirm(wallet_id) => {
-            escrow
-                .transactions
-                .insert(escrow.transaction_id, Some(action));
+            let tx_id = escrow.transaction_id;
+
+            exec::system_reserve_gas(SIGNAL_GAS_RESERVE)
+                .expect("Unable to reserve gas for signal handler");
+            escrow.transactions.insert(tx_id, Some(action));
+
             escrow.confirm(None, wallet_id).await
         }
         EscrowAction::Refund(wallet_id) => {
-            escrow
-                .transactions
-                .insert(escrow.transaction_id, Some(action));
+            let tx_id = escrow.transaction_id;
+
+            exec::system_reserve_gas(SIGNAL_GAS_RESERVE)
+                .expect("Unable to reserve gas for signal handler");
+            escrow.transactions.insert(tx_id, Some(action));
+
             escrow.refund(None, wallet_id).await
         }
         EscrowAction::Cancel(wallet_id) => escrow.cancel(wallet_id).await,
@@ -316,6 +355,9 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
     .encode();
     gstd::util::to_leak_ptr(encoded)
 }
+
+#[no_mangle]
+extern "C" fn escrow_handle_signal() {}
 
 gstd::metadata! {
     title: "Escrow",
