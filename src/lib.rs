@@ -45,7 +45,7 @@ async fn transfer_tokens(
         Ok(FTokenEvent::Ok) => Ok(transfer_message_id),
         _ => {
             handle_signal_state
-                .entry(message_id)
+                .entry(transfer_message_id)
                 .and_modify(|(signal_state, _)| {
                     *signal_state = HandleSignalState::Panic;
                 });
@@ -155,9 +155,11 @@ impl Escrow {
 
         wallet.state = WalletState::AwaitingConfirmation;
         self.transactions.remove(&current_transaction_id);
-        handle_signal_state.entry(transfer_message_id).and_modify(|(signal_state, _)| {
-            *signal_state = HandleSignalState::Normal;
-        });
+        handle_signal_state
+            .entry(transfer_message_id)
+            .and_modify(|(signal_state, _)| {
+                *signal_state = HandleSignalState::Normal;
+            });
 
         reply(EscrowEvent::Deposited(current_transaction_id, wallet_id));
     }
