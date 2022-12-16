@@ -6,7 +6,7 @@ use gstd::Encode;
 const PATH: &str = "./target/wasm32-unknown-unknown/debug/escrow.opt.wasm";
 
 #[cfg(not(debug_assertions))]
-const PATH: &str = "./target/wasm32-unknown-unknown/release/staking.opt.wasm";
+const PATH: &str = "./target/wasm32-unknown-unknown/release/escrow.opt.wasm";
 
 pub const FT_PROGRAM_ID: u64 = 2;
 pub const ESCROW_PROGRAM_ID: u64 = 13370;
