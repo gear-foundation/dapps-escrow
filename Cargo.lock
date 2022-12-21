@@ -1154,7 +1154,6 @@ dependencies = [
  "parity-scale-codec",
  "primitive-types",
  "scale-info",
- "sp-core",
  "tokio",
 ]
 
