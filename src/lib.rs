@@ -2,7 +2,7 @@
 
 use escrow_io::*;
 use ft_main_io::*;
-use gstd::{async_main, exec, msg, prelude::*, ActorId};
+use gstd::{async_main, exec, msg, prelude::*, ActorId, Encode};
 
 /// Transfers `amount` tokens from `sender` account to `recipient` account.
 /// Arguments:
@@ -71,7 +71,7 @@ fn panic_wallet_not_exist(wallet_id: WalletId) -> ! {
     panic!("Wallet with the {wallet_id} ID doesn't exist");
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct Escrow {
     ft_program_id: ActorId,
     wallets: BTreeMap<WalletId, Wallet>,
@@ -312,6 +312,21 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
     }
     .encode();
     gstd::util::to_leak_ptr(encoded)
+}
+
+/* #[no_mangle]
+extern "C" fn metahash() {
+    let metahash: [u8; 32] = include!("../.metahash");
+    msg::reply(metahash, 0).expect("Failed to share metahash");
+} */
+
+#[no_mangle]
+extern "C" fn state() {
+    msg::reply(
+        unsafe { ESCROW.clone().expect("Uninitialized escrow state").wallets },
+        0,
+    )
+    .expect("Failed to share state");
 }
 
 gstd::metadata! {

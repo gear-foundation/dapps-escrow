@@ -15,7 +15,8 @@ ft-logic-io = { git = "https://github.com/gear-dapps/sharded-fungible-token.git"
 escrow-io = { path = "io" }
 
 [build-dependencies]
-gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git", branch = "stable" }
+gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git", branch = "master" }
+escrow-meta-io = { path = "meta-io" }
 
 [dev-dependencies]
 gstd = { git = "https://github.com/gear-tech/gear.git", branch = "stable", features = ["debug"] }

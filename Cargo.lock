@@ -217,9 +217,10 @@ name = "escrow"
 version = "0.1.2"
 dependencies = [
  "escrow-io",
+ "escrow-meta-io",
  "ft-logic-io",
  "ft-main-io",
- "gear-wasm-builder",
+ "gear-wasm-builder 0.1.2 (git+https://github.com/gear-tech/gear.git?branch=master)",
  "gstd",
  "gtest",
  "parity-scale-codec",
@@ -235,6 +236,17 @@ dependencies = [
  "parity-scale-codec",
  "primitive-types",
  "scale-info",
+]
+
+[[package]]
+name = "escrow-meta-io"
+version = "0.1.0"
+dependencies = [
+ "escrow-io",
+ "gear-wasm-builder 0.1.2 (git+https://github.com/gear-tech/gear.git?branch=master)",
+ "gmeta",
+ "gstd",
+ "primitive-types",
 ]
 
 [[package]]
@@ -429,6 +441,23 @@ dependencies = [
 [[package]]
 name = "gear-wasm-builder"
 version = "0.1.2"
+source = "git+https://github.com/gear-tech/gear.git?branch=master#dfdd6a72efc7881972bf6d0540b92f4d8dc08d34"
+dependencies = [
+ "anyhow",
+ "cargo_metadata",
+ "colored",
+ "gmeta",
+ "log",
+ "pathdiff",
+ "pwasm-utils",
+ "thiserror",
+ "toml",
+ "which",
+]
+
+[[package]]
+name = "gear-wasm-builder"
+version = "0.1.2"
 source = "git+https://github.com/gear-tech/gear.git?branch=stable#ec8de75d6001cdd477ac2a7e0251fe24c947c232"
 dependencies = [
  "anyhow",
@@ -459,6 +488,28 @@ dependencies = [
  "cfg-if",
  "libc",
  "wasi",
+]
+
+[[package]]
+name = "gmeta"
+version = "0.1.0"
+source = "git+https://github.com/gear-tech/gear.git?branch=master#dfdd6a72efc7881972bf6d0540b92f4d8dc08d34"
+dependencies = [
+ "blake2-rfc",
+ "gmeta-codegen",
+ "hex",
+ "parity-scale-codec",
+ "scale-info",
+]
+
+[[package]]
+name = "gmeta-codegen"
+version = "0.1.0"
+source = "git+https://github.com/gear-tech/gear.git?branch=master#dfdd6a72efc7881972bf6d0540b92f4d8dc08d34"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -508,7 +559,7 @@ dependencies = [
  "gear-core",
  "gear-core-errors",
  "gear-core-processor",
- "gear-wasm-builder",
+ "gear-wasm-builder 0.1.2 (git+https://github.com/gear-tech/gear.git?branch=stable)",
  "gear-wasm-instrument",
  "hex",
  "log",
