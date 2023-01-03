@@ -1,11 +1,8 @@
 #![no_std]
 
-pub mod io;
-
+use escrow_io::*;
 use ft_main_io::*;
 use gstd::{async_main, exec, msg, prelude::*, ActorId};
-
-use crate::io::*;
 
 /// Transfers `amount` tokens from `sender` account to `recipient` account.
 /// Arguments:

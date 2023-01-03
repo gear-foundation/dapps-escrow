@@ -1,3 +1,5 @@
+#![no_std]
+
 use gstd::{prelude::*, ActorId};
 use primitive_types::U256;
 
