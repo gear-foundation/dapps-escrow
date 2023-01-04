@@ -1,7 +1,46 @@
 #![no_std]
 
+use gmeta::{In, InOut, Metadata};
 use gstd::{prelude::*, ActorId};
 use primitive_types::U256;
+
+pub struct EscrowMetadata;
+
+impl Metadata for EscrowMetadata {
+    type Init = In<InitEscrow>;
+    type Handle = InOut<EscrowAction, EscrowEvent>;
+    type Others = ();
+    type Reply = ();
+    type Signal = ();
+    type State = Escrow;
+}
+
+#[derive(Default, Encode, Decode, Clone, TypeInfo)]
+pub struct Escrow {
+    pub ft_program_id: ActorId,
+    pub wallets: BTreeMap<WalletId, Wallet>,
+    pub id_nonce: WalletId,
+    pub transaction_id: u64,
+    pub transactions: BTreeMap<u64, Option<EscrowAction>>,
+}
+
+/* #[metawasm]
+pub trait Metawasm {
+    type State = BTreeMap<WalletId, Wallet>;
+
+    fn info(wallet_id: U256, state: Self::State) -> Wallet {
+        *state
+            .get(&wallet_id)
+            .unwrap_or_else(|| panic!("Wallet with the {wallet_id} ID doesn't exist"))
+    }
+
+    fn created_wallets(state: Self::State) -> Vec<(WalletId, Wallet)> {
+        state
+            .iter()
+            .map(|(wallet_id, wallet)| (*wallet_id, *wallet))
+            .collect()
+    }
+} */
 
 /// An escrow wallet ID.
 pub type WalletId = U256;

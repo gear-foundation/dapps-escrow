@@ -12,11 +12,12 @@ primitive-types = { version = "0.12.1", default-features = false, features = ["s
 scale-info = { version = "2.3.1", default-features = false }
 ft-main-io = { git = "https://github.com/gear-dapps/sharded-fungible-token.git", tag = "0.1.2" }
 ft-logic-io = { git = "https://github.com/gear-dapps/sharded-fungible-token.git", tag = "0.1.2" }
+async-trait = "0.1.60"
 escrow-io = { path = "io" }
 
 [build-dependencies]
 gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git", branch = "master" }
-escrow-meta-io = { path = "meta-io" }
+escrow-io = { path = "io" }
 
 [dev-dependencies]
 gstd = { git = "https://github.com/gear-tech/gear.git", branch = "stable", features = ["debug"] }

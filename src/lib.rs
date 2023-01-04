@@ -71,16 +71,25 @@ fn panic_wallet_not_exist(wallet_id: WalletId) -> ! {
     panic!("Wallet with the {wallet_id} ID doesn't exist");
 }
 
-#[derive(Default, Clone)]
-struct Escrow {
-    ft_program_id: ActorId,
-    wallets: BTreeMap<WalletId, Wallet>,
-    id_nonce: WalletId,
-    transaction_id: u64,
-    transactions: BTreeMap<u64, Option<EscrowAction>>,
+#[async_trait::async_trait]
+pub trait EscrowHandler {
+    fn create(&mut self, buyer: ActorId, seller: ActorId, amount: u128);
+
+    async fn deposit(&mut self, transaction_id: Option<u64>, wallet_id: WalletId);
+
+    async fn confirm(&mut self, transaction_id: Option<u64>, wallet_id: WalletId);
+
+    async fn refund(&mut self, transaction_id: Option<u64>, wallet_id: WalletId);
+
+    async fn cancel(&mut self, wallet_id: WalletId);
+
+    async fn continue_transaction(&mut self, transaction_id: u64);
+
+    fn get_transaction_id(&mut self, transaction_id: Option<u64>) -> u64;
 }
 
-impl Escrow {
+#[async_trait::async_trait]
+impl EscrowHandler for Escrow {
     fn create(&mut self, buyer: ActorId, seller: ActorId, amount: u128) {
         if buyer == ActorId::zero() && seller == ActorId::zero() {
             panic!("A buyer or seller can't have the zero address")
@@ -314,16 +323,16 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
     gstd::util::to_leak_ptr(encoded)
 }
 
-/* #[no_mangle]
+#[no_mangle]
 extern "C" fn metahash() {
     let metahash: [u8; 32] = include!("../.metahash");
     msg::reply(metahash, 0).expect("Failed to share metahash");
-} */
+}
 
 #[no_mangle]
 extern "C" fn state() {
     msg::reply(
-        unsafe { ESCROW.clone().expect("Uninitialized escrow state").wallets },
+        unsafe { ESCROW.clone().expect("Uninitialized escrow state") },
         0,
     )
     .expect("Failed to share state");
