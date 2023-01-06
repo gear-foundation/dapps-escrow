@@ -24,24 +24,6 @@ pub struct Escrow {
     pub transactions: BTreeMap<u64, Option<EscrowAction>>,
 }
 
-/* #[metawasm]
-pub trait Metawasm {
-    type State = BTreeMap<WalletId, Wallet>;
-
-    fn info(wallet_id: U256, state: Self::State) -> Wallet {
-        *state
-            .get(&wallet_id)
-            .unwrap_or_else(|| panic!("Wallet with the {wallet_id} ID doesn't exist"))
-    }
-
-    fn created_wallets(state: Self::State) -> Vec<(WalletId, Wallet)> {
-        state
-            .iter()
-            .map(|(wallet_id, wallet)| (*wallet_id, *wallet))
-            .collect()
-    }
-} */
-
 /// An escrow wallet ID.
 pub type WalletId = U256;
 
