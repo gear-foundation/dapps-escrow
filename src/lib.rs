@@ -301,29 +301,6 @@ async fn main() {
 }
 
 #[no_mangle]
-extern "C" fn meta_state() -> *mut [i32; 2] {
-    let state: EscrowState = msg::load().expect("Unable to decode EscrowState");
-    let escrow = unsafe { ESCROW.get_or_insert(Default::default()) };
-    let encoded = match state {
-        EscrowState::Info(wallet_id) => EscrowStateReply::Info(
-            *escrow
-                .wallets
-                .get(&wallet_id)
-                .unwrap_or_else(|| panic_wallet_not_exist(wallet_id)),
-        ),
-        EscrowState::CreatedWallets => EscrowStateReply::CreatedWallets(
-            escrow
-                .wallets
-                .iter()
-                .map(|(wallet_id, wallet)| (*wallet_id, *wallet))
-                .collect(),
-        ),
-    }
-    .encode();
-    gstd::util::to_leak_ptr(encoded)
-}
-
-#[no_mangle]
 extern "C" fn metahash() {
     let metahash: [u8; 32] = include!("../.metahash");
     msg::reply(metahash, 0).expect("Failed to share metahash");
@@ -336,16 +313,4 @@ extern "C" fn state() {
         0,
     )
     .expect("Failed to share state");
-}
-
-gstd::metadata! {
-    title: "Escrow",
-    init:
-        input: InitEscrow,
-    handle:
-        input: EscrowAction,
-        output: EscrowEvent,
-    state:
-        input: EscrowState,
-        output: EscrowStateReply,
 }
