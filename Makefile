@@ -1,6 +1,6 @@
-.PHONY: all build clean fmt fmt-check init linter pre-commit test
+.PHONY: all build clean fmt fmt-check init linter pre-commit test full-test
 
-all: init build test
+all: init build full-test
 
 build:
 	@echo ──────────── Build release ────────────────────
@@ -48,3 +48,22 @@ test: build
 	fi
 	@echo ──────────── Run tests ────────────────────────
 	@cargo +nightly test --release
+
+full-test: build
+	@if [ ! -f "./target/ft_main.wasm" ]; then\
+	    curl -L\
+	        "https://github.com/gear-dapps/sharded-fungible-token/releases/download/0.1.2/ft_main-0.1.2.opt.wasm"\
+	        -o "./target/ft_main.wasm";\
+	fi
+	@if [ ! -f "./target/ft_logic.opt.wasm" ]; then\
+	    curl -L\
+	        "https://github.com/gear-dapps/sharded-fungible-token/releases/download/0.1.2/ft_logic-0.1.2.opt.wasm"\
+	        -o "./target/ft_logic.opt.wasm";\
+	fi
+	@if [ ! -f "./target/ft_storage.opt.wasm" ]; then\
+	    curl -L\
+	        "https://github.com/gear-dapps/sharded-fungible-token/releases/download/0.1.2/ft_storage-0.1.2.opt.wasm"\
+	        -o "./target/ft_storage.opt.wasm";\
+	fi
+	@echo ──────────── Run tests ────────────────────────
+	@cargo +nightly t -Fbinary-vendor -- --include-ignored
