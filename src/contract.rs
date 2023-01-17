@@ -252,7 +252,7 @@ static mut ESCROW: Option<Escrow> = None;
 extern "C" fn init() {
     let config: InitEscrow = msg::load().expect("Unable to decode InitEscrow");
 
-    if config.ft_program_id == ActorId::zero() {
+    if config.ft_program_id.is_zero() {
         panic!("FT program address can't be 0");
     }
 
