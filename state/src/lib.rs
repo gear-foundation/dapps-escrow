@@ -3,6 +3,7 @@
 use escrow_io::*;
 use gmeta::{metawasm, Metadata};
 use gstd::{prelude::*, ActorId};
+use primitive_types::U256;
 
 #[metawasm]
 pub trait Metawasm {
