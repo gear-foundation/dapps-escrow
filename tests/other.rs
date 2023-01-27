@@ -158,7 +158,7 @@ fn reuse_after_refund() {
 }
 
 #[test]
-fn interact_with_non_existend_wallet() {
+fn interact_with_non_existent_wallet() {
     let system = init_system();
     let escrow_program = init_escrow(&system);
 
@@ -170,7 +170,7 @@ fn interact_with_non_existend_wallet() {
 
 #[test]
 #[should_panic]
-fn interact_with_non_existend_wallet_meta_state() {
+fn interact_with_non_existent_wallet_meta_state() {
     let system = init_system();
     let escrow_program = init_escrow(&system);
 

@@ -1,6 +1,7 @@
 use escrow_io::*;
 use ft_main_io::*;
 use gstd::{async_main, exec, msg, prelude::*, ActorId, Encode};
+use hashbrown::HashMap;
 
 /// Transfers `amount` tokens from `sender` account to `recipient` account.
 /// Arguments:
@@ -37,7 +38,7 @@ async fn transfer_tokens(
     }
 }
 
-fn get_mut_wallet(wallets: &mut BTreeMap<WalletId, Wallet>, wallet_id: WalletId) -> &mut Wallet {
+fn get_mut_wallet(wallets: &mut HashMap<WalletId, Wallet>, wallet_id: WalletId) -> &mut Wallet {
     wallets
         .get_mut(&wallet_id)
         .unwrap_or_else(|| panic_wallet_not_exist(wallet_id))
@@ -69,26 +70,17 @@ fn panic_wallet_not_exist(wallet_id: WalletId) -> ! {
     panic!("Wallet with the {wallet_id} ID doesn't exist");
 }
 
-#[async_trait::async_trait]
-pub trait EscrowHandler {
-    fn create(&mut self, buyer: ActorId, seller: ActorId, amount: u128);
-
-    async fn deposit(&mut self, transaction_id: Option<u64>, wallet_id: WalletId);
-
-    async fn confirm(&mut self, transaction_id: Option<u64>, wallet_id: WalletId);
-
-    async fn refund(&mut self, transaction_id: Option<u64>, wallet_id: WalletId);
-
-    async fn cancel(&mut self, wallet_id: WalletId);
-
-    async fn continue_transaction(&mut self, transaction_id: u64);
-
-    fn get_transaction_id(&mut self, transaction_id: Option<u64>) -> u64;
+#[derive(Default, Clone)]
+pub struct Escrow {
+    pub ft_program_id: ActorId,
+    pub wallets: HashMap<WalletId, Wallet>,
+    pub id_nonce: WalletId,
+    pub transaction_id: u64,
+    pub transactions: HashMap<u64, Option<EscrowAction>>,
 }
 
-#[async_trait::async_trait]
-impl EscrowHandler for Escrow {
-    fn create(&mut self, buyer: ActorId, seller: ActorId, amount: u128) {
+impl Escrow {
+    pub fn create(&mut self, buyer: ActorId, seller: ActorId, amount: u128) {
         if buyer == ActorId::zero() && seller == ActorId::zero() {
             panic!("A buyer or seller can't have the zero address")
         }
@@ -113,7 +105,7 @@ impl EscrowHandler for Escrow {
         reply(EscrowEvent::Created(wallet_id));
     }
 
-    async fn deposit(&mut self, transaction_id: Option<u64>, wallet_id: WalletId) {
+    pub async fn deposit(&mut self, transaction_id: Option<u64>, wallet_id: WalletId) {
         let current_transaction_id = self.get_transaction_id(transaction_id);
 
         let wallet = get_mut_wallet(&mut self.wallets, wallet_id);
@@ -142,7 +134,7 @@ impl EscrowHandler for Escrow {
         reply(EscrowEvent::Deposited(current_transaction_id, wallet_id));
     }
 
-    async fn confirm(&mut self, transaction_id: Option<u64>, wallet_id: WalletId) {
+    pub async fn confirm(&mut self, transaction_id: Option<u64>, wallet_id: WalletId) {
         let current_transaction_id = self.get_transaction_id(transaction_id);
 
         let wallet = get_mut_wallet(&mut self.wallets, wallet_id);
@@ -169,7 +161,7 @@ impl EscrowHandler for Escrow {
         }
     }
 
-    async fn refund(&mut self, transaction_id: Option<u64>, wallet_id: WalletId) {
+    pub async fn refund(&mut self, transaction_id: Option<u64>, wallet_id: WalletId) {
         let current_transaction_id = self.get_transaction_id(transaction_id);
 
         let wallet = get_mut_wallet(&mut self.wallets, wallet_id);
@@ -196,7 +188,7 @@ impl EscrowHandler for Escrow {
         }
     }
 
-    async fn cancel(&mut self, wallet_id: WalletId) {
+    pub async fn cancel(&mut self, wallet_id: WalletId) {
         let wallet = get_mut_wallet(&mut self.wallets, wallet_id);
         check_buyer_or_seller(wallet.buyer, wallet.seller);
         assert_eq!(wallet.state, WalletState::AwaitingDeposit);
@@ -210,7 +202,7 @@ impl EscrowHandler for Escrow {
     ///
     /// Execution makes sense if, when returning from an async message,
     /// the gas ran out and the state has changed.
-    async fn continue_transaction(&mut self, transaction_id: u64) {
+    pub async fn continue_transaction(&mut self, transaction_id: u64) {
         let transactions = self.transactions.clone();
         let payload = &transactions
             .get(&transaction_id)
@@ -234,7 +226,7 @@ impl EscrowHandler for Escrow {
         }
     }
 
-    fn get_transaction_id(&mut self, transaction_id: Option<u64>) -> u64 {
+    pub fn get_transaction_id(&mut self, transaction_id: Option<u64>) -> u64 {
         match transaction_id {
             Some(transaction_id) => transaction_id,
             None => {
@@ -242,6 +234,26 @@ impl EscrowHandler for Escrow {
                 self.transaction_id = self.transaction_id.wrapping_add(1);
                 transaction_id
             }
+        }
+    }
+}
+
+impl From<&Escrow> for EscrowState {
+    fn from(state: &Escrow) -> Self {
+        EscrowState {
+            ft_program_id: state.ft_program_id,
+            wallets: state
+                .wallets
+                .iter()
+                .map(|(id, wallet)| (*id, *wallet))
+                .collect(),
+            id_nonce: state.id_nonce,
+            transaction_id: state.transaction_id,
+            transactions: state
+                .transactions
+                .iter()
+                .map(|(a, b)| (*a, b.clone()))
+                .collect(),
         }
     }
 }
@@ -307,7 +319,11 @@ extern "C" fn metahash() {
 #[no_mangle]
 extern "C" fn state() {
     msg::reply(
-        unsafe { ESCROW.clone().expect("Uninitialized escrow state") },
+        unsafe {
+            let escrow = ESCROW.as_ref().expect("Uninitialized escrow state");
+            let state: EscrowState = escrow.into();
+            state
+        },
         0,
     )
     .expect("Failed to share state");

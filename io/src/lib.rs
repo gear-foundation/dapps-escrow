@@ -12,16 +12,16 @@ impl Metadata for EscrowMetadata {
     type Others = ();
     type Reply = ();
     type Signal = ();
-    type State = Escrow;
+    type State = EscrowState;
 }
 
 #[derive(Default, Encode, Decode, Clone, TypeInfo)]
-pub struct Escrow {
+pub struct EscrowState {
     pub ft_program_id: ActorId,
-    pub wallets: BTreeMap<WalletId, Wallet>,
+    pub wallets: Vec<(WalletId, Wallet)>,
     pub id_nonce: WalletId,
     pub transaction_id: u64,
-    pub transactions: BTreeMap<u64, Option<EscrowAction>>,
+    pub transactions: Vec<(u64, Option<EscrowAction>)>,
 }
 
 /// An escrow wallet ID.

@@ -2,7 +2,7 @@
 
 use escrow_io::*;
 use gmeta::{metawasm, Metadata};
-use gstd::{prelude::*, ActorId};
+use gstd::prelude::*;
 use primitive_types::U256;
 
 #[metawasm]
@@ -10,10 +10,13 @@ pub trait Metawasm {
     type State = <EscrowMetadata as Metadata>::State;
 
     fn info(wallet_id: U256, state: Self::State) -> Wallet {
-        *state
+        let (_, wallet) = *state
             .wallets
-            .get(&wallet_id)
-            .unwrap_or_else(|| panic!("Wallet with the {wallet_id} ID doesn't exist"))
+            .iter()
+            .find(|(id, _)| id == &wallet_id)
+            .unwrap_or_else(|| panic!("Wallet with the {wallet_id} ID doesn't exist"));
+
+        wallet
     }
 
     fn created_wallets(state: Self::State) -> Vec<(WalletId, Wallet)> {
