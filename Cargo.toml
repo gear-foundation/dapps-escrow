@@ -23,6 +23,11 @@ gstd = { git = "https://github.com/gear-tech/gear.git", branch = "stable", featu
 gtest = { git = "https://github.com/gear-tech/gear.git", branch = "stable" }
 tokio = "1"
 
+[patch.crates-io]
+# Two dependecies below goes for subxt v0.22.0
+sp-core = { git = "https://github.com/gear-tech/substrate.git", branch = "gear-stable" }
+sp-runtime = { git = "https://github.com/gear-tech/substrate.git", branch = "gear-stable" }
+
 [features]
 # Used for inserting constants with WASM binaries (NOT paths) of the contract in
 # the root crate. Usually these constants used in gclient tests instead of
