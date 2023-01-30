@@ -19,6 +19,7 @@ pub const AMOUNT_REMAINDER: u128 = 20000;
 pub const NONEXISTENT_WALLET: u128 = 999999;
 
 #[tokio::test]
+#[ignore]
 async fn init() -> Result<()> {
     let api = GearApi::dev().await?;
 
@@ -59,6 +60,7 @@ async fn init() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn create() -> Result<()> {
     let api = GearApi::dev().await?;
 
@@ -127,6 +129,7 @@ async fn create() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn deposit_not_enough_tokens() -> Result<()> {
     let api = GearApi::dev().await?;
 
@@ -219,6 +222,7 @@ async fn deposit_not_enough_tokens() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn not_buyer_confirm() -> Result<()> {
     let api = GearApi::dev().await?;
 
@@ -335,6 +339,7 @@ async fn not_buyer_confirm() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn cancel_paid() -> Result<()> {
     let api = GearApi::dev().await?;
 
@@ -451,6 +456,7 @@ async fn cancel_paid() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn refund_not_paid() -> Result<()> {
     let api = GearApi::dev().await?;
 
