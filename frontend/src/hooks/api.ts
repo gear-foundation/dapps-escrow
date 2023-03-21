@@ -1,10 +1,9 @@
-import { useSendMessage } from '@gear-js/react-hooks';
+import { useSendMessage, useReadWasmState } from '@gear-js/react-hooks';
 import { Escrow, Wallet } from 'types';
 import stateMetaWasm from 'assets/wasm/state.meta.wasm';
 import metaTxt from 'assets/meta/meta.txt';
 import { getProgramId } from 'utils';
 import { useMetadata, useWasmMetadata } from './useMetadata';
-import { useReadWasmState } from './useReadWasmState';
 
 function useEscrowMetadata() {
   return useMetadata(metaTxt);
@@ -31,7 +30,7 @@ function useEscrow(id: string) {
 }
 
 function useWallets() {
-  const { state, isStateRead } = useEscrowState<Wallet[]>('created_wallets');
+  const { state, isStateRead } = useEscrowState<Wallet[]>('created_wallets', null);
   const isWalletsStateRead = state ? isStateRead : true;
 
   return { wallets: state, isWalletsStateRead };
