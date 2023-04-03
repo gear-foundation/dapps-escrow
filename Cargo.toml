@@ -9,7 +9,7 @@ authors = ["Gear Technologies"]
 gstd = { git = "https://github.com/gear-tech/gear.git", branch = "testnet" }
 ft-main-io = { git = "https://github.com/gear-dapps/sharded-fungible-token.git", tag = "0.1.4" }
 ft-logic-io = { git = "https://github.com/gear-dapps/sharded-fungible-token.git", tag = "0.1.4" }
-async-trait = "0.1.64"
+async-trait = "0.1.68"
 hashbrown = "0.13.1"
 escrow-io = { path = "io" }
 
