@@ -30,7 +30,7 @@ function Home() {
   const { walletId, setWalletId, resetWalletId } = useWalletId();
 
   const { escrow, isEscrowRead } = useEscrow(walletId);
-  const { wallets, isWalletsStateRead } = useWallets();
+  const { wallets, isWalletsStateRead } = useWallets(walletId);
   const sendMessage = useEscrowMessage();
 
   const { buyer, seller, state, amount } = escrow || {};

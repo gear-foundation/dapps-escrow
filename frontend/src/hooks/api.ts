@@ -24,13 +24,13 @@ function useEscrow(id: string | undefined) {
   return { escrow, isEscrowRead };
 }
 
-function useWallets() {
+function useWallets(walletId: string | undefined) {
   const { state, isStateRead } = useEscrowState<Wallet[]>(
     'created_wallets',
     null
   );
 
-  const isWalletsStateRead = state ? isStateRead : true;
+  const isWalletsStateRead = walletId ? isStateRead : true;
 
   return { wallets: state, isWalletsStateRead };
 }

@@ -8,7 +8,7 @@ type Props = {
   walletId: string | undefined;
   role: string | undefined;
   state: string | undefined;
-  amount: string | undefined;
+  amount: number | undefined;
   onProgramReset: () => void;
   onWalletReset: () => void;
 };

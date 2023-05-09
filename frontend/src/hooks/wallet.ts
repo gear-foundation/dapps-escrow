@@ -16,6 +16,7 @@ function useWalletId() {
 
   const meta = useEscrowMetadata();
 
+  // TODO: walletId should be number
   const [walletId, setWalletId] = useState<string | undefined>(
     localStorage[LOCAL_STORAGE.WALLET]
   );
