@@ -9,7 +9,7 @@ authors = ["Gear Technologies"]
 gstd = { git = "https://github.com/gear-tech/gear.git", rev = "5c685d0f15c412ab6ee019ceaf7ce084426dfb68" }
 ft-main-io = { git = "https://github.com/gear-dapps/sharded-fungible-token.git", tag = "2.1.1" }
 async-trait = "0.1.68"
-hashbrown = "0.13.2"
+hashbrown = "0.14.0"
 escrow-io = { path = "io" }
 
 [build-dependencies]
