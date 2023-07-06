@@ -18,8 +18,6 @@ function useEscrowState<T>(functionName: string, payload?: any) {
 function useEscrow(id: string | undefined) {
   const { state, isStateRead } = useEscrowState<Escrow>('info', id);
 
-  console.log('escrow: ', state);
-
   const escrow = id ? state : undefined;
   const isEscrowRead = id ? isStateRead : true;
 
@@ -31,8 +29,6 @@ function useWallets(walletId: string | undefined) {
     'created_wallets',
     null
   );
-
-  console.log('wallets: ', state);
 
   const isWalletsStateRead = walletId ? isStateRead : true;
 
