@@ -37,7 +37,7 @@ function useWallets(walletId: string | undefined) {
 
 function useEscrowMessage() {
   const meta = useEscrowMetadata();
-  return useSendMessage(getProgramId(), meta);
+  return useSendMessage(getProgramId(), meta, { isMaxGasLimit: false });
 }
 
 export { useEscrow, useWallets, useEscrowMessage, useEscrowMetadata };
